@@ -1,3 +1,4 @@
+//Filename: .cmd/api/main.go
 package main
 
 import (
@@ -38,15 +39,12 @@ func main() {
 		logger: logger, //for terminal
 
 	}
-	//create a route/mutliplexer
-	//mutliplexer is a data structure that works like a map
-	mux := http.NewServeMux()
-	mux.HandleFunc("/v1/healthcheck", app.healthcheckHandler) //the route and the function
-
+	
+	
 	//create our server
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", cfg.port),
-		Handler: mux,
+		Handler: app.routes(),
 
 		IdleTimeout: time.Minute,      //inactive connective //or end connection after 1 min
 		ReadTimeout: 10 * time.Second, //time to read request body or header

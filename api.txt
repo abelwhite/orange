@@ -1,0 +1,8 @@
+
+METHOD          URL pattern             Handler name                Description
+GET             /v1/healthcheck         healthcheckHandler          shows app info
+GET             /v1/schools             listSchoolHandler           shows the details of all schools
+POST            /V1/schools             createSchoolHandler         create a new school
+GET             /v1/schools/:id         showSchoolHandler           show details of specific school   
+PUT(Update)     /v1/schools/:id         editSchoolHandler           Update the details of a school 
+DELETE          /v1/schools/:id         deleteSchoolHandler         Delete Specific schools
