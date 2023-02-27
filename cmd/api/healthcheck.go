@@ -1,4 +1,4 @@
-//Filename: .cmd/api/healthchech.go
+// Filename: .cmd/api/healthchech.go
 package main
 
 import (
@@ -7,7 +7,10 @@ import (
 )
 
 func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "status: available\n")
-	fmt.Fprintf(w, "environment: %s \n ", app.config.env) 
-	fmt.Fprintf(w, "version: %s\n", version)
+	js := `{"status": "available", "environment" :%q, "version": %q}`
+	js = fmt.Sprintf(js, app.config.env, version)
+
+	//add header info
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(js))
 }
