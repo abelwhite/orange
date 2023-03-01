@@ -2,6 +2,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -16,4 +17,26 @@ func (app *application) readIDParams(r *http.Request) (int64, error) {
 		return 0, errors.New("invalid Id Parameter")
 	}
 	return id, nil
+}
+
+func (app *application) WriteJSON(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
+	//convert the data to json format
+	js, err := json.Marshal(data)
+	if err != nil {
+		app.logger.Println(err)
+		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+		return err
+	}
+	js = append(js, '\n') //if no error
+	//add any headers that were sent
+	for key, value := range headers {
+		w.Header()[key] = value
+	}
+
+	//add header info
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	w.Write([]byte(js))
+	return nil
+
 }
