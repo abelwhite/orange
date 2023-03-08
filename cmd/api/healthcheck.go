@@ -16,6 +16,8 @@ func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Reques
 	}
 	err := app.WriteJSON(w, http.StatusOK, data, nil) //sen ok to say everything is okay. We send w caz it semds stuff to the browser.
 	if err != nil {
+		app.logger.Println(err)
+		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
 		return
 	}
 

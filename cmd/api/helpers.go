@@ -23,8 +23,7 @@ func (app *application) WriteJSON(w http.ResponseWriter, status int, data interf
 	//convert the data to json format
 	js, err := json.Marshal(data)
 	if err != nil {
-		app.logger.Println(err)
-		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+		
 		return err
 	}
 	js = append(js, '\n') //if no error

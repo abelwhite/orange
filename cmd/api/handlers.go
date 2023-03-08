@@ -1,4 +1,4 @@
-// Filename: cmd/api/schools.go
+// Filename: cmd/api/handlers.go
 package main
 
 import (
