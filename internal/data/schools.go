@@ -3,20 +3,19 @@ package data
 
 import (
 	"time"
-
-	"honnef.co/go/tools/lintcmd/version"
 )
 
-type School struct{
-	ID int64
-	Name string
-	Level string
-	Contact string
-	Phone string
-	Email string
-	Website string
-	Address string
-	Mode []string
-	CreatedAt time.Time
-	version int32
+// school represents one row of data in our schools table
+type School struct { //we can get data from client and put it in here and send to db or vise versa
+	ID        int64     `json:"id"` 
+	Name      string    `json:"name"`
+	Level     string    `json:"level"`
+	Contact   string    `json:"contact"`
+	Phone     string    `json:"phone"`
+	Email     string    `json:"email"`
+	Website   string    `json:"website,omitempty"`
+	Address   string    `json:"address"`
+	Mode      []string  `json:"mode"`
+	CreatedAt time.Time `json:"-"`
+	Version   int32     `json:"version"`
 }
