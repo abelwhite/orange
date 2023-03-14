@@ -1,5 +1,11 @@
-INSERT INTO schools(name, district, phone)
+INSERT INTO schools(name, level, contact, phone, email, website, 
+                    address, mode, version)
 VALUES
-('UB', 'Cayo', '501-678-1234'),
-('SJC', 'Belize', '501-213-5678');
+('University of Belize', 'University', 'Abel Blanco', '322-2442',
+ 'abel@gmail.com', 'ub.edu.bz', 'Belmopan', 'Face-to-face', '1'),
+('University of West Indies', 'University', 'Arturo Blanco', '822-2442',
+ 'arturo@gmail.com', 'uwi.edu.bz', 'Belmopan', 'Online', '2');
 
+
+
+	

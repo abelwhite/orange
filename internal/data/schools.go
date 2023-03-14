@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+
 // school represents one row of data in our schools table
 type School struct { //we can get data from client and put it in here and send to db or vise versa
 	ID        int64     `json:"id"` 
