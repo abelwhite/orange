@@ -9,15 +9,16 @@ func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Reques
 	//js := `{"status": "available", "environment" :%q, "version": %q}`
 	//js = fmt.Sprintf(js, app.config.env, version)
 
-	data := map[string]string{
-		"status":      "available",
-		"environment": app.config.env,
-		"version":     version,
+	data := envelope{
+		"status": "available",
+		"system_info": map[string]string{
+			"environment": app.config.env,
+			"version":     version,
+		},
 	}
 	err := app.WriteJSON(w, http.StatusOK, data, nil) //sen ok to say everything is okay. We send w caz it semds stuff to the browser.
 	if err != nil {
-		app.logger.Println(err)
-		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 

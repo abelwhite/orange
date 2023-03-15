@@ -21,11 +21,10 @@ func (app *application) readIDParams(r *http.Request) (int64, error) {
 	return id, nil
 }
 
-func (app *application) WriteJSON(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
+func (app *application) WriteJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 	//convert the data to json format
 	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
-
 		return err
 	}
 	js = append(js, '\n') //if no error
