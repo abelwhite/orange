@@ -2,7 +2,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -23,11 +22,10 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 		Address string   `json:"address"`
 		Mode    []string `json:"mode"`
 	}
-	//Initialize a new json.Decoder instance
-	err := json.NewDecoder(r.Body).Decode(&input) //we take r.Body and decode it into input
-	//take it from json and decode it so it can be sent to db.
+	//Decode the JSON request
+	err := app.readJSON(w, r, &input) //we take r.Body and decode it into input
 	if err != nil {
-		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+		app.badRequestResponse(w, r, err)
 		return
 	}
 	//Print the request

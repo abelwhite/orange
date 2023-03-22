@@ -4,6 +4,8 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -37,6 +39,45 @@ func (app *application) WriteJSON(w http.ResponseWriter, status int, data envelo
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	w.Write([]byte(js))
+	return nil
+
+}
+
+// to help signify the error from the api
+func (app *application) readJSON(w http.ResponseWriter, r *http.Request, destination interface{}) error {
+	//we will try to decode a JSON request
+	err := json.NewDecoder(r.Body).Decode(destination)
+	if err != nil {
+		//something went wrong
+		//lets find out the type of error
+		var syntaxError *json.SyntaxError
+		var unMarshalTypeError *json.UnmarshalTypeError
+		var invalidUnmarshalError *json.InvalidUnmarshalError
+
+		//lets check for the type of decode error
+		switch {
+		case errors.As(err, &syntaxError): //we use As if we looking for the type of error
+			return fmt.Errorf("body contains badly-formed JSON(at character %d)", syntaxError.Offset)
+
+		case errors.Is(err, io.ErrUnexpectedEOF): //we use Is if we looking for a specific type of error
+			return fmt.Errorf("body contains badly-formed JSON")
+
+		case errors.As(err, &unMarshalTypeError):
+			if unMarshalTypeError.Field != "" {
+				return fmt.Errorf("body contains incorrect JSON type for field %q)", unMarshalTypeError.Field)
+			}
+			return fmt.Errorf("body contains empty JSON field %q)", unMarshalTypeError.Field)
+
+		case errors.Is(err, io.EOF):
+			return errors.New("body must not be empty")
+
+		case errors.As(err, &invalidUnmarshalError):
+			panic(err)
+		default:
+			return err
+		}
+
+	}
 	return nil
 
 }
