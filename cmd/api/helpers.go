@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -45,14 +46,22 @@ func (app *application) WriteJSON(w http.ResponseWriter, status int, data envelo
 
 // to help signify the error from the api
 func (app *application) readJSON(w http.ResponseWriter, r *http.Request, destination interface{}) error {
+	//specify the max size of our JSON request body
+	maxBytes := 1_048_576
+	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 	//we will try to decode a JSON request
-	err := json.NewDecoder(r.Body).Decode(destination)
+	dec := json.NewDecoder(r.Body) //created the decoder
+	dec.DisallowUnknownFields()
+	//start the decoding
+	err := dec.Decode(destination)
 	if err != nil {
 		//something went wrong
 		//lets find out the type of error
 		var syntaxError *json.SyntaxError
 		var unMarshalTypeError *json.UnmarshalTypeError
 		var invalidUnmarshalError *json.InvalidUnmarshalError
+		//check for max bytes
+		var maxBytesError *http.MaxBytesError
 
 		//lets check for the type of decode error
 		switch {
@@ -66,17 +75,27 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, destina
 			if unMarshalTypeError.Field != "" {
 				return fmt.Errorf("body contains incorrect JSON type for field %q)", unMarshalTypeError.Field)
 			}
-			return fmt.Errorf("body contains empty JSON field %q)", unMarshalTypeError.Field)
+			return fmt.Errorf("body contains badly-formed JSON (at character %d)", unMarshalTypeError.Offset)
 
 		case errors.Is(err, io.EOF):
 			return errors.New("body must not be empty")
+			//unmappable field/ not-existent field
+		case strings.HasPrefix(err.Error(), "json: unkown field"):
+			fieldName := strings.TrimPrefix(err.Error(), "json : unkown field")
+			return fmt.Errorf("body contains unknown key %s", fieldName)
+		case errors.As(err, &maxBytesError):
+			return fmt.Errorf("body must not be larger than %d bytes", maxBytesError.Limit)
 
 		case errors.As(err, &invalidUnmarshalError):
 			panic(err)
 		default:
 			return err
 		}
-
+	}
+	//Lets call the decorder to check if they are any trailing json objects
+	err = dec.Decode(&struct{}{}) //decode functions takes the json request and dumps it somewhere else
+	if err != io.EOF {
+		return errors.New("body must only contain a single JSON value")
 	}
 	return nil
 
