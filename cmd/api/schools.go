@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/abelwhite/orange/internal/data"
+	"github.com/abelwhite/orange/internal/validator"
 )
 
 func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Request) {
@@ -28,6 +29,13 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 		app.badRequestResponse(w, r, err)
 		return
 	}
+	//lets validate JSON input
+	v := validator.New()
+	//perform the validation check
+	v.Check(input.Website != "", "website", "must be provided")
+	//print the request
+	fmt.Fprintf(w, "%+v\n", input)
+
 	//Print the request
 	fmt.Fprintf(w, "%+v\n", input)
 
